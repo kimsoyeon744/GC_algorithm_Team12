@@ -1,0 +1,183 @@
+package Testing_package;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.TextField;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
+public class GUI_1 {
+
+	private JFrame frame;
+	StringBuilder sb = new StringBuilder();
+	private File f; // File 필드 추가
+	Color c1 = new Color(64, 64, 64);
+	Color c2 = new Color(255, 192, 0);
+	
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					GUI_1 window = new GUI_1();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		/*
+		 * GUI_1 main = new GUI_1(); main.rsa = new RSA(); main.rsa.setMain(main);
+		 */
+	}
+	/**
+	 * Create the application.
+	 */
+	public GUI_1() {
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();		
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setTitle("SECRET ZIP");
+		frame.setSize(600, 600);
+		frame.setLocationRelativeTo(null);
+		
+		JPanel mainPanel = new JPanel(new BorderLayout());
+		JPanel titlePanel = new JPanel(new BorderLayout());
+		JPanel FunctionPanel = new JPanel(new BorderLayout());
+		JPanel subFPanel1 = new JPanel(new BorderLayout());
+		JPanel subFPanel2 = new JPanel(new BorderLayout());
+		JPanel subFPanel3 = new JPanel(new BorderLayout());
+		
+		mainPanel.setBackground(c1);
+		titlePanel.setBackground(c1);
+		FunctionPanel.setBackground(c1);
+		subFPanel1.setBackground(c1);
+		subFPanel2.setBackground(c1);
+		subFPanel3.setBackground(c1);
+		
+		titlePanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
+		subFPanel1.setBorder(BorderFactory.createEmptyBorder(30, 200, 30, 200));
+		subFPanel2.setBorder(BorderFactory.createEmptyBorder(70, 100, 70, 100));
+		subFPanel3.setBorder(BorderFactory.createEmptyBorder(70, 100, 70, 100));
+		
+		JLabel lblNewLabel = new JLabel("SECRET ZIP");
+		lblNewLabel.setForeground(c2);
+		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 30));
+		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		titlePanel.add(lblNewLabel);
+		
+		JButton inputButton = new JButton("File Search");
+		inputButton.setFont(new Font("Tahoma", Font.BOLD, 20));
+		inputButton.setForeground(c1);
+		subFPanel1.add(inputButton, BorderLayout.CENTER);
+		
+		inputButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser chooser = new JFileChooser();
+				chooser.showOpenDialog(frame);
+				f = chooser.getSelectedFile(); // selectedFile에 할당
+				
+				try(
+						BufferedReader in = new BufferedReader(new FileReader(f))){
+					String line = in.readLine();
+					while(line != null) {
+						sb.append(line + "");
+						line = in.readLine();
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		
+		//텍스트 필드 - 파일 경로
+		TextField FilePathText = new TextField("The path where you want to save the file ...");
+		FilePathText.setFont((new Font("Tahoma", Font.BOLD, 12)));
+		subFPanel2.add(FilePathText, BorderLayout.NORTH);
+		
+		
+		//텍스트 필드2 - 시크릿 키
+		TextField SecretKey = new TextField("Secret Key (Enter only when decompress) ...");
+		SecretKey.setFont((new Font("Tahoma", Font.BOLD, 12)));
+		subFPanel2.add(SecretKey, BorderLayout.SOUTH);
+		
+		
+		JButton CompBtn = new JButton("Compression");
+		CompBtn.setFont(new Font("Tahoma", Font.BOLD, 20));
+		subFPanel3.add(CompBtn, BorderLayout.WEST);
+		
+		
+		CompBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int Compressibility = Testing.main_compress(f.toString(), FilePathText.getText());
+				
+				// 팝업 알림 표시
+		        JOptionPane.showMessageDialog(frame, "압축이 성공적으로 완료되었습니다!\n압축률 : 원본의" + Compressibility + "%","알림", JOptionPane.INFORMATION_MESSAGE);
+			}
+		});
+		
+		JButton DecompBtn = new JButton("Decompression");
+		DecompBtn.setFont(new Font("Tahoma", Font.BOLD, 20));
+		subFPanel3.add(DecompBtn, BorderLayout.EAST);
+		
+		DecompBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(!SecretKey.getText().equals("23863")) {
+					// 팝업 알림 표시
+			        JOptionPane.showMessageDialog(frame, "시크릿 키를 확인하세요","알림", JOptionPane.INFORMATION_MESSAGE);
+			        return;
+				}
+				//secret key : "23863"
+				Testing_for_decompressing.main_decompression(f.toString(), SecretKey.getText(),FilePathText.getText());
+				// 팝업 알림 표시
+		        JOptionPane.showMessageDialog(frame, "압축 해제가 성공적으로 완료되었습니다!","알림", JOptionPane.INFORMATION_MESSAGE);
+			}
+		});
+		
+		
+		
+		
+		FunctionPanel.add(subFPanel1, BorderLayout.NORTH);
+		FunctionPanel.add(subFPanel2, BorderLayout.CENTER);
+		FunctionPanel.add(subFPanel3, BorderLayout.SOUTH);
+		
+		mainPanel.add(titlePanel, BorderLayout.NORTH);
+		mainPanel.add(FunctionPanel, BorderLayout.CENTER);
+		
+		frame.add(mainPanel);
+		
+	}
+	
+	 
+	
+	protected void setVisible(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
+}
